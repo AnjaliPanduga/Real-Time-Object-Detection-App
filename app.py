@@ -2,6 +2,7 @@ import streamlit as st
 import cv2
 import numpy as np
 import tempfile
+import os
 
 st.title("🚀 Object Detection App")
 
@@ -13,62 +14,56 @@ option = st.sidebar.selectbox(
      "Full Body Detection (Video)")
 )
 
-# Load Face & Eye cascades from OpenCV
+# -------- GET BASE DIRECTORY (VERY IMPORTANT FOR CLOUD) -------- #
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+car_path = os.path.join(BASE_DIR,"haarcascades","haarcascade_car.xml")
+body_path = os.path.join(BASE_DIR,"haarcascades","haarcascade_fullbody.xml")
+
+# -------- LOAD CASCADES -------- #
+
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 eye_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + 'haarcascade_eye.xml')
 
-# Load Car & Body cascades manually
-car_classifier = cv2.CascadeClassifier("haarcascade_car.xml")
-body_classifier = cv2.CascadeClassifier("haarcascade_fullbody.xml")
+car_classifier = cv2.CascadeClassifier(car_path)
+body_classifier = cv2.CascadeClassifier(body_path)
 
+# Safety Check
+if car_classifier.empty():
+    st.error("Car Cascade NOT loaded in Cloud!")
 
-# -------- SMART IMAGE DETECTION FUNCTION -------- #
+if body_classifier.empty():
+    st.error("Body Cascade NOT loaded in Cloud!")
+
+# -------- IMAGE DETECTION FUNCTION -------- #
 
 def process_image(img, detect_eye=False):
 
     img = cv2.resize(img, (600,600))
-
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray,(5,5),0)
 
-    # First try detecting normal faces
     faces = face_classifier.detectMultiScale(
-        gray,
-        scaleFactor=1.2,
-        minNeighbors=5,
-        minSize=(40,40)
-    )
+        gray,1.2,5,minSize=(40,40))
 
-    # If not detected, try smaller face detection
-    if len(faces) == 0:
+    if len(faces)==0:
         faces = face_classifier.detectMultiScale(
-            gray,
-            scaleFactor=1.1,
-            minNeighbors=4,
-            minSize=(30,30)
-        )
+            gray,1.1,4,minSize=(30,30))
 
     for (x,y,w,h) in faces:
-
-        if w < 40 or h < 40:
-            continue
 
         cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),3)
 
         if detect_eye:
-
             roi_gray = gray[y:y+h, x:x+w]
             roi_color = img[y:y+h, x:x+w]
 
             eyes = eye_classifier.detectMultiScale(
-                roi_gray,
-                scaleFactor=1.1,
-                minNeighbors=6,
-                minSize=(15,15)
-            )
+                roi_gray,1.1,6,minSize=(15,15))
 
             for (ex,ey,ew,eh) in eyes:
                 cv2.rectangle(roi_color,(ex,ey),
@@ -76,11 +71,10 @@ def process_image(img, detect_eye=False):
 
     return img
 
-
 uploaded_file = st.file_uploader("Upload Image/Video",
                                  type=["jpg", "png", "jpeg", "mp4"])
 
-# -------- FACE IMAGE -------- #
+# -------- IMAGE DETECTION -------- #
 
 if uploaded_file is not None:
 
@@ -102,7 +96,6 @@ if uploaded_file is not None:
 
         result = process_image(img, True)
         st.image(result, channels="BGR")
-
 
 # -------- CAR VIDEO -------- #
 
@@ -128,7 +121,6 @@ if uploaded_file is not None:
             stframe.image(frame, channels="BGR")
 
         cap.release()
-
 
 # -------- FULL BODY VIDEO -------- #
 
