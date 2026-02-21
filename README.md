@@ -38,10 +38,14 @@ It can detect:
 Real-Time-Object-Detection-App/
 │
 ├── app.py
-├── haarcascade_car.xml
-├── haarcascade_fullbody.xml
 ├── requirements.txt
-└── README.md
+├── README.md
+│
+├── haarcascades/
+│   ├── haarcascade_car.xml
+│   ├── haarcascade_eye.xml
+│   ├── haarcascade_frontalface_default.xml
+│   └── haarcascade_fullbody.xml
 
 ```
 
