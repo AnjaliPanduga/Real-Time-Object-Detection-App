@@ -35,7 +35,7 @@ It can detect:
 ## 📂 Project Structure
 
 ```
-Object-Detection-App/
+Real-Time-Object-Detection-App/
 │
 ├── app.py
 ├── haarcascade_car.xml
@@ -51,9 +51,9 @@ Object-Detection-App/
 
 ### 1️⃣ Clone the Repository
 ```
-git clone https://github.com/your-username/Object-Detection-App.git
+git clone https://github.com/AnjaliPanduga/Real-Time-Object-Detection-App
 
-cd Object-Detection-App
+cd Real-Time-Object-Detection-App
 ```
 ### 2️⃣ Install Required Libraries
 ```
@@ -103,4 +103,13 @@ Full Body Detection | Video |
 
 ---
 
+👩‍💻 Author
+
+Anjali Panduga
+
+📧 Email: pandugaanjali2003@gmail.com
+
+🔗 GitHub: https://github.com/AnjaliPanduga
+
+---
 
